@@ -1,137 +1,137 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
-set -u
+  set -e
+    set -o pipefail
+    set -u
 
 
-#case $BUILDKITE_AGENT_META_DATA_K8S_CLUSTER in
-#  alpha-apse2-v1)
-#    clusterDomain='au.platform.afterpay-alpha.com'
-#    ;;
-#  alpha-euwe1-v1)
-#    clusterDomain='eu.platform.afterpay-alpha.com'
-#    ;;
-#  alpha-usea1-v1)
-#    clusterDomain='us.platform.afterpay-alpha.com'
-#    ;;
-#  beta-apse2-v1)
-#    clusterDomain='au.platform.afterpay-beta.com'
-#    ;;
-#  beta-euwe1-v1)
-#    clusterDomain='eu.platform.afterpay-beta.com'
-#    ;;
-#  beta-usea1-v1)
-#    clusterDomain='us.platform.afterpay-beta.com'
-#    ;;
-#  omega-apse2-v1)
-#    clusterDomain='au.platform.afterpay.com'
-#    ;;
-#esac
+  #case $BUILDKITE_AGENT_META_DATA_K8S_CLUSTER in
+  #  alpha-apse2-v1)
+  #    clusterDomain='au.platform.afterpay-alpha.com'
+  #    ;;
+  #  alpha-euwe1-v1)
+  #    clusterDomain='eu.platform.afterpay-alpha.com'
+  #    ;;
+  #  alpha-usea1-v1)
+  #    clusterDomain='us.platform.afterpay-alpha.com'
+  #    ;;
+  #  beta-apse2-v1)
+  #    clusterDomain='au.platform.afterpay-beta.com'
+  #    ;;
+  #  beta-euwe1-v1)
+  #    clusterDomain='eu.platform.afterpay-beta.com'
+  #    ;;
+  #  beta-usea1-v1)
+  #    clusterDomain='us.platform.afterpay-beta.com'
+  #    ;;
+  #  omega-apse2-v1)
+  #    clusterDomain='au.platform.afterpay.com'
+  #    ;;
+  #esac
 
-# deploy_service() takes a core app name and a version (the tag of the core image)
-# and runs a Helm install.
-#function deploy_service() {
-#    local -r name="${1}"
-#    local -r environment="${2}"
-#    local -r app_version="${3}"
-#    local -r name_and_environment="${environment}-${name}"
-#    local -r chart='platform/app'
-#    local -r app_values="./values/defaults/${name}.yaml"
-#    local -r env_values="./values/envs/${environment}/${name}.yaml"
-#    local -r timeout="5m0s"
-#
-#    declare -a helm_args=(
-#      "${name_and_environment}" # release name
-#      "${chart}" # chart name
-#      --version="${chartVersion}"
-#      --namespace="${ns}"
-#      --values='./values/defaults/default.yaml'
-#      --values="${app_values}"
-#      --values="${env_values}"
-#      --set=version="${app_version}"
-#    )
-#
-#    if [[ ${piiAwareApps[*]} =~ ${name} ]]; then
-#      helm_args+=(--set="serviceAccount.iamRoleArn=$(get_iam_role_arn "${name_and_environment}")")
-#    fi
-#
-#    #helm template "${helm_args[@]}"
-#    helm upgrade --install --wait --debug --timeout="${timeout}" "${helm_args[@]}"
-#}
+  # deploy_service() takes a core app name and a version (the tag of the core image)
+  # and runs a Helm install.
+  #function deploy_service() {
+  #    local -r name="${1}"
+  #    local -r environment="${2}"
+  #    local -r app_version="${3}"
+  #    local -r name_and_environment="${environment}-${name}"
+  #    local -r chart='platform/app'
+  #    local -r app_values="./values/defaults/${name}.yaml"
+  #    local -r env_values="./values/envs/${environment}/${name}.yaml"
+  #    local -r timeout="5m0s"
+  #
+  #    declare -a helm_args=(
+  #      "${name_and_environment}" # release name
+  #      "${chart}" # chart name
+  #      --version="${chartVersion}"
+  #      --namespace="${ns}"
+  #      --values='./values/defaults/default.yaml'
+  #      --values="${app_values}"
+  #      --values="${env_values}"
+  #      --set=version="${app_version}"
+  #    )
+  #
+  #    if [[ ${piiAwareApps[*]} =~ ${name} ]]; then
+  #      helm_args+=(--set="serviceAccount.iamRoleArn=$(get_iam_role_arn "${name_and_environment}")")
+  #    fi
+  #
+  #    #helm template "${helm_args[@]}"
+  #    helm upgrade --install --wait --debug --timeout="${timeout}" "${helm_args[@]}"
+  #}
 
-#echo "Deploy Env: ${environment}"
-#echo "Deploy Application: ${appName} Version: ${appVersion}"
-#deploy_service "${appName}" "${environment}" "${appVersion}"
+  #echo "Deploy Env: ${environment}"
+  #echo "Deploy Application: ${appName} Version: ${appVersion}"
+  #deploy_service "${appName}" "${environment}" "${appVersion}"
 
-main() {
-  env
-  local cluster="${BUILDKITE_PLUGIN_K8S_DEPLOYER_PLUGIN_CLUSTER}"
-  local namespace="${BUILDKITE_PLUGIN_K8S_DEPLOYER_PLUGIN_NAMESPACE}"
-  local app_name="${BUILDKITE_PLUGIN_K8S_DEPLOYER_PLUGIN_NAME}"
-  local environment="${BUILDKITE_PLUGIN_K8S_DEPLOYER_PLUGIN_ENVIRONMENT}"
+    main() {
+    env
+    local cluster="${BUILDKITE_PLUGIN_BKPLUGIN_CLUSTER}"
+    local namespace="${BUILDKITE_PLUGIN_BKPLUGIN_NAMESPACE}"
+    local app_name="${BUILDKITE_PLUGIN_BKPLUGIN_NAME}"
+    local environment="${BUILDKITE_PLUGIN_BKPLUGIN_ENVIRONMENT}"
   # drop down to select version?
-  local version="${BUILDKITE_PLUGIN_K8S_DEPLOYER_PLUGIN_VERSION}"
+    local version="${BUILDKITE_PLUGIN_BKPLUGIN_VERSION}"
 
-  if [[ $cluster && -n $namespace && -n $app_name && -n $environment && -n $version ]]; then
+    if [[ $cluster && -n $namespace && -n $app_name && -n $environment && -n $version ]]; then
     echo "~~~ Deploying $app_name $version on $environment ..."
-    #local exports; exports="$(assume_role_credentials "$role" "$build" "$duration" | credentials_json_to_shell_exports)"
-    #eval "$exports"
+  #local exports; exports="$(assume_role_credentials "$role" "$build" "$duration" | credentials_json_to_shell_exports)"
+  #eval "$exports"
 
-    #echo "Exported session credentials:"
-    #echo "  AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
-    #echo "  AWS_SECRET_ACCESS_KEY=(${#AWS_SECRET_ACCESS_KEY} chars)"
-    #echo "  AWS_SESSION_TOKEN=(${#AWS_SESSION_TOKEN} chars)"
+  #echo "Exported session credentials:"
+  #echo "  AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
+  #echo "  AWS_SECRET_ACCESS_KEY=(${#AWS_SECRET_ACCESS_KEY} chars)"
+  #echo "  AWS_SESSION_TOKEN=(${#AWS_SESSION_TOKEN} chars)"
 
-#    if [[ -n $region ]]; then
-#      export AWS_REGION="$region"
-#      export AWS_DEFAULT_REGION="$region"
-#      echo "  AWS_REGION=$AWS_REGION"
-#      echo "  AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
-#    fi
-     buildkite-agent upload pipeline ./test.yaml
-  else
+  #    if [[ -n $region ]]; then
+  #      export AWS_REGION="$region"
+  #      export AWS_DEFAULT_REGION="$region"
+  #      echo "  AWS_REGION=$AWS_REGION"
+  #      echo "  AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
+  #    fi
+    buildkite-agent upload pipeline ./test.yaml
+    else
     echo >&2 "Missing name or version or environment"
-  fi
+    fi
 }
 
-# Assume the IAM role $1, for duration $3, and allocate a session name derived from $2.
-# output: the Credentials portion of the AWS response JSON;
-#     {
-#         "SecretAccessKey": "foo"
-#         "SessionToken": "bar",
-#         "Expiration": "...",
-#         "AccessKeyId": "baz"
-#     }
-assume_role_credentials() {
-  local role="$1"
-  local build="$2"
-  local duration="$3"
-  aws sts assume-role \
+  # Assume the IAM role $1, for duration $3, and allocate a session name derived from $2.
+  # output: the Credentials portion of the AWS response JSON;
+  #     {
+  #         "SecretAccessKey": "foo"
+  #         "SessionToken": "bar",
+  #         "Expiration": "...",
+  #         "AccessKeyId": "baz"
+  #     }
+    assume_role_credentials() {
+    local role="$1"
+    local build="$2"
+    local duration="$3"
+    aws sts assume-role \
     --role-arn "$role" \
     --role-session-name "aws-assume-role-buildkite-plugin-${build}" \
     --duration-seconds "$duration" \
     --query Credentials
 }
 
-# Convert credentials JSON to shell export statements using standard CLI tools
-# input:
-#     {
-#         "SecretAccessKey": "foo"
-#         "SessionToken": "bar",
-#         "Expiration": "...",
-#         "AccessKeyId": "baz"
-#     }
-# output:
-#     export AWS_SECRET_ACCESS_KEY="foo"
-#     export AWS_SESSION_TOKEN="bar"
-#     export AWS_ACCESS_KEY_ID="baz"
-#credentials_json_to_shell_exports() {
-#  sed \
-#    -e 's/ *"\(.*\)": \(".*"\),*/\1=\2/g' \
-#    -e 's/^SecretAccessKey/export AWS_SECRET_ACCESS_KEY/' \
-#    -e 's/^AccessKeyId/export AWS_ACCESS_KEY_ID/' \
-#    -e 's/^SessionToken/export AWS_SESSION_TOKEN/' \
-#    | grep "^export AWS"
-#}
+  # Convert credentials JSON to shell export statements using standard CLI tools
+  # input:
+  #     {
+  #         "SecretAccessKey": "foo"
+  #         "SessionToken": "bar",
+  #         "Expiration": "...",
+  #         "AccessKeyId": "baz"
+  #     }
+  # output:
+  #     export AWS_SECRET_ACCESS_KEY="foo"
+  #     export AWS_SESSION_TOKEN="bar"
+  #     export AWS_ACCESS_KEY_ID="baz"
+  #credentials_json_to_shell_exports() {
+  #  sed \
+  #    -e 's/ *"\(.*\)": \(".*"\),*/\1=\2/g' \
+  #    -e 's/^SecretAccessKey/export AWS_SECRET_ACCESS_KEY/' \
+  #    -e 's/^AccessKeyId/export AWS_ACCESS_KEY_ID/' \
+  #    -e 's/^SessionToken/export AWS_SESSION_TOKEN/' \
+  #    | grep "^export AWS"
+  #}
 
-main
+    main
