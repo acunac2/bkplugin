@@ -91,6 +91,7 @@ main() {
 cat <<EOF >> ./test.yaml
 steps:
   - command: echo "hola"
+    agents: "queue=afterpay-beta"   
 EOF
      buildkite-agent pipeline upload ./test.yaml
   else
