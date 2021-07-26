@@ -88,8 +88,10 @@ main() {
 #      echo "  AWS_REGION=$AWS_REGION"
 #      echo "  AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
 #    fi
-     echo "steps:" > ./test.yaml
-     echo '  - command: echo "hola"' >> ./test.yaml
+     cat << EOF >> ./test.yaml
+     steps:
+       - command: echo "hola"
+  EOF
      buildkite-agent pipeline upload ./test.yaml
   else
     echo >&2 "Missing name or version or environment"
