@@ -1,0 +1,25 @@
+name: K8s deployer
+description: Deploys an app into k8s
+author: https://github.com/cesarafterpay/ops-k8s-app-deployer-plugin
+requirements: []
+configuration:
+  properties:
+    cluster:
+      type: string
+    namespace:
+      type: string
+    name:
+      type: string
+    environment:
+      type: string
+    version:
+      type: string
+#    disaster_recovery_enabled:
+#      type: string
+  required:
+    - cluster
+    - namespace
+    - name
+    - environment
+    - app_version
+  additionalProperties: false
